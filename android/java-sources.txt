@@ -1,0 +1,3 @@
+"/Users/prashant/Projects/Appcelerator_Studio_Workspace/imagetransformer/android/build/generated/java/in/prashant/imagetransformer/ImagetransformerBootstrap.java"
+"/Users/prashant/Projects/Appcelerator_Studio_Workspace/imagetransformer/android/src/in/prashant/imagetransformer/Blobby.java"
+"/Users/prashant/Projects/Appcelerator_Studio_Workspace/imagetransformer/android/src/in/prashant/imagetransformer/ImagetransformerModule.java"
