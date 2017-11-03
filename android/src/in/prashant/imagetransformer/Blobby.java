@@ -69,12 +69,12 @@ public class Blobby {
         		
         	} else {
         		if (keepAspect) {
-                    if (photoH > photoW) {
+                    if (photoH > photoW) {		// portrait mode pics
                         finalHeight = (photoH > destHeight) ? destHeight : photoH;
                         finalWidth = (int) (finalHeight / ratioH);
 
-                    } else {
-                        finalWidth = (photoW > destWidth) ? destWidth : photoW;
+                    } else {		// landscape mode pics
+                        finalWidth = (photoW > destHeight) ? destHeight : photoW;
                         finalHeight = (int) (finalWidth * ratioH);
                     }
 
@@ -97,7 +97,7 @@ public class Blobby {
     private static boolean processImage(String filePath, String destFile, int destWidth, int destHeight, boolean keepAspect, int quality) {
         Bitmap scaledBitmap = rescale(filePath, destWidth, destHeight, keepAspect);
 
-        if (scaledBitmap != null) {
+        if (scaledBitmap != null) {        	
             try {
                 FileOutputStream fos = new FileOutputStream(destFile);
                 scaledBitmap.compress(Bitmap.CompressFormat.JPEG, quality, fos);
@@ -118,7 +118,6 @@ public class Blobby {
             return false;
         }
     }
-
 
 
     protected static boolean rescaleAndCompressToFile(String filePath, String destFile, int destWidth, int destHeight, boolean keepAspect, int quality) {

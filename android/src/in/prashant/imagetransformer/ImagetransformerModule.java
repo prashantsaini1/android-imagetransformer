@@ -8,68 +8,116 @@
  */
 package in.prashant.imagetransformer;
 
+import java.io.FileOutputStream;
+
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiApplication;
+import org.appcelerator.titanium.TiBlob;
+import org.appcelerator.titanium.view.TiDrawableReference;
 import org.appcelerator.kroll.common.Log;
+import android.graphics.Bitmap;
 
 
 
 @Kroll.module(name="Imagetransformer", id="in.prashant.imagetransformer")
-public class ImagetransformerModule extends KrollModule
-{
-
-	// Standard Debugging variables
+public class ImagetransformerModule extends KrollModule {
 	private static final String LCAT = "ImagetransformerModule";
 	private static final String SOURCE_FILE = "sourceFile";
 	private static final String DEST_FILE = "destFile";
 	private static final String QUALITY = "quality";
 	private static final String WIDTH = "width";
 	private static final String HEIGHT = "height";
+	
+	@Kroll.constant public static final int COMPRESS_TYPE_JPEG = 1;
+	@Kroll.constant public static final int COMPRESS_TYPE_PNG = 2;
 
-
-	public ImagetransformerModule()
-	{
+	public ImagetransformerModule() {
 		super();
 	}
 
 	@Kroll.onAppCreate
-	public static void onAppCreate(TiApplication app)
-	{
+	public static void onAppCreate(TiApplication app) {
 		Log.d(LCAT, "inside onAppCreate");
-		// put module init code that needs to run when the application is created
 	}
 
-	// Methods
-		@Kroll.method
-		public boolean resize(@Kroll.argument(optional=true) KrollDict options) {
-			String sourceFile = null;
-			String destFile = null;
-			int width = 0;
-			int height = 0;
-			int quality = 0;
+	
+	@Kroll.method
+	public boolean resize(@Kroll.argument(optional=true) KrollDict options) {
+		String sourceFile = null;
+		String destFile = null;
+		int width = 0;
+		int height = 0;
+		int quality = 0;
+		
+		if (options != null) {
+			sourceFile = options.containsKeyAndNotNull(SOURCE_FILE) ? (String) options.get(SOURCE_FILE) : null;
+			destFile = options.containsKeyAndNotNull(DEST_FILE) ? (String) options.get(DEST_FILE) : null;
+			width = options.containsKeyAndNotNull(WIDTH) ? (Integer) options.get(WIDTH) : null;
+			height = options.containsKeyAndNotNull(HEIGHT) ? (Integer) options.get(HEIGHT) : null;
+			quality = options.containsKeyAndNotNull(QUALITY) ? (Integer) options.get(QUALITY) : 100;
+		}
+		
+		if (sourceFile != null) {
+			sourceFile = sourceFile.replaceFirst("file://", "");
+			destFile = destFile.replaceFirst("file://", "");
 			
-			if (options != null) {
-				sourceFile = options.containsKeyAndNotNull(SOURCE_FILE) ? (String) options.get(SOURCE_FILE) : null;
-				destFile = options.containsKeyAndNotNull(DEST_FILE) ? (String) options.get(DEST_FILE) : null;
-				width = options.containsKeyAndNotNull(WIDTH) ? (Integer) options.get(WIDTH) : null;
-				height = options.containsKeyAndNotNull(HEIGHT) ? (Integer) options.get(HEIGHT) : null;
-				quality = options.containsKeyAndNotNull(QUALITY) ? (Integer) options.get(QUALITY) : 100;
-			}
-			
-			if (sourceFile != null) {
-				sourceFile = sourceFile.replaceFirst("file://", "");
-				destFile = destFile.replaceFirst("file://", "");
-				
-				Log.i(LCAT, "Source Path = " + sourceFile);
-				Log.i(LCAT, "Dest Path = " + destFile);
-				
-				return Blobby.rescaleAndCompressToFile(sourceFile, destFile, width, height, true, quality);
-			}
-			
+			return Blobby.rescaleAndCompressToFile(sourceFile, destFile, width, height, true, quality);
+		}
+		
+		return false;
+	}
+	
+	
+	@Kroll.method
+	public boolean compressToFile(TiBlob blob, String fileURL, @Kroll.argument(optional=true) Integer quality, @Kroll.argument(optional=true) Integer compressType) {
+		if (blob == null || fileURL == null || fileURL.equalsIgnoreCase("")) {
+			Log.i(LCAT,  "Parameters missing. Check blob & file parameters");
 			return false;
 		}
+		
+		if (quality == null) {
+			quality = 100;
+		}
+		
+		if (compressType == null) {
+			compressType = 1;
+		}
+		
+		fileURL = fileURL.replaceFirst("file://", "");
+		
+		Bitmap image = TiDrawableReference.fromBlob(getActivity(), blob).getBitmap();
 
+		try {
+			FileOutputStream fos = new FileOutputStream(fileURL);
+			
+			if (compressType == 1) {
+				image.compress(Bitmap.CompressFormat.JPEG, quality, fos);
+				Log.i(LCAT,  "JPEG");
+				
+			} else {
+				image.compress(Bitmap.CompressFormat.PNG, quality, fos);
+				Log.i(LCAT,  "PNG");
+			}
+			
+            fos.close();
+
+            if (!image.isRecycled()) {
+            	image.recycle();
+            }
+
+            return true;
+            
+		} catch (Exception e) {
+			return false;
+			
+		} finally {
+			if (image != null && !image.isRecycled()) {
+				image.recycle();
+				image = null;
+			}
+		}
+	}
 }
 
