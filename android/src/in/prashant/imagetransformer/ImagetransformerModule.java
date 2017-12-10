@@ -8,6 +8,7 @@
  */
 package in.prashant.imagetransformer;
 
+import java.io.ByteArrayOutputStream;
 import java.io.FileOutputStream;
 
 import org.appcelerator.kroll.KrollDict;
@@ -17,7 +18,9 @@ import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.view.TiDrawableReference;
 import org.appcelerator.kroll.common.Log;
+
 import android.graphics.Bitmap;
+
 
 
 
@@ -69,6 +72,12 @@ public class ImagetransformerModule extends KrollModule {
 		return false;
 	}
 	
+	
+	@Kroll.method
+	public TiBlob compress(TiBlob blob, Integer quality) {
+		return Blobby.compress(getActivity(), blob, quality);
+	}
+
 	
 	@Kroll.method
 	public boolean compressToFile(TiBlob blob, String fileURL, @Kroll.argument(optional=true) Integer quality, @Kroll.argument(optional=true) Integer compressType) {

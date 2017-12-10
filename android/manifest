@@ -2,8 +2,8 @@
 # this is your module manifest and used by Titanium
 # during compilation, packaging, distribution, etc.
 #
-version: 2.0.0
-apiversion: 3
+version: 3.0.0
+apiversion: 4
 architectures: armeabi-v7a x86
 description: imagetransformer
 author: Prashant Saini
@@ -15,4 +15,4 @@ name: imagetransformer
 moduleid: in.prashant.imagetransformer
 guid: 0c0b56ba-5955-4410-98e4-d714527cee3a
 platform: android
-minsdk: 6.2.1.GA
+minsdk: 7.0.0.GA

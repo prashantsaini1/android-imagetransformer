@@ -1,14 +1,19 @@
 package in.prashant.imagetransformer;
 
 
+import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.util.DisplayMetrics;
 import android.util.Log;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
+
+import org.appcelerator.titanium.TiBlob;
+import org.appcelerator.titanium.view.TiDrawableReference;
 
 
 /**
@@ -18,6 +23,7 @@ import java.io.FileOutputStream;
 
 
 public class Blobby {
+	private static final String LCAT = "ImagetransformerModule";
     private static final int MAX_QUALITY = 100;
     private static final int DEFAULT_COMPRESS_QUALITY = 80;
 
@@ -37,7 +43,6 @@ public class Blobby {
         return inSampleSize;
     }
 
-
     protected static Bitmap getSmallBitmap(String filePath, int w, int h) {
         File tempFile = new File(filePath);
 
@@ -51,7 +56,6 @@ public class Blobby {
 
         return BitmapFactory.decodeFile(tempFile.getAbsolutePath(), options);
     }
-
 
     protected static Bitmap rescale(String filePath, int destWidth, int destHeight, boolean keepAspect) {
         Bitmap resultBitmap = null;
@@ -92,6 +96,37 @@ public class Blobby {
 
         return resultBitmap;
     }
+    
+    
+    protected static TiBlob compress(Activity activity, TiBlob blob, Integer quality) {
+		TiBlob result = null;
+		Bitmap bmp = null;
+		ByteArrayOutputStream bos;
+		
+		try {
+			bmp = TiDrawableReference.fromBlob(activity, blob).getBitmap();
+			bos = new ByteArrayOutputStream();
+			
+			if ( bmp.compress(Bitmap.CompressFormat.JPEG, quality, bos) ) {
+				byte[] data = bos.toByteArray();
+				result = TiBlob.blobFromData(data, "image/jpeg");
+			}
+			
+		} catch (OutOfMemoryError e) {
+			Log.i(LCAT, "Out Of Memory Error. Use compressToFile method.");
+			
+		} finally {
+			if (bmp != null) {
+				bmp.recycle();
+				bmp = null;
+			}
+			
+			bos = null;
+		}
+		
+		return result;
+	}
+    
 
 
     private static boolean processImage(String filePath, String destFile, int destWidth, int destHeight, boolean keepAspect, int quality) {
@@ -105,12 +140,13 @@ public class Blobby {
 
                 if (!scaledBitmap.isRecycled()) {
                     scaledBitmap.recycle();
+                    scaledBitmap = null;
                 }
 
                 return true;
 
             } catch (Exception e) {
-                Log.e("Compress error - ", e.getMessage());
+                Log.e("Compress error : ", e.getMessage());
                 return false;
             }
 
@@ -119,6 +155,7 @@ public class Blobby {
         }
     }
 
+    
 
     protected static boolean rescaleAndCompressToFile(String filePath, String destFile, int destWidth, int destHeight, boolean keepAspect, int quality) {
         return processImage(filePath, destFile, destWidth, destHeight, keepAspect, quality);
