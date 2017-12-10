@@ -4,7 +4,7 @@
 #
 version: 3.0.0
 apiversion: 4
-architectures: armeabi-v7a x86
+architectures: arm64-v8a armeabi-v7a x86
 description: imagetransformer
 author: Prashant Saini
 license: Specify your license
@@ -15,4 +15,4 @@ name: imagetransformer
 moduleid: in.prashant.imagetransformer
 guid: 0c0b56ba-5955-4410-98e4-d714527cee3a
 platform: android
-minsdk: 7.0.0.GA
+minsdk: 7.0.0
